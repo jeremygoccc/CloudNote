@@ -1,0 +1,49 @@
+/**index.wxss**/
+.header {
+    display: flex;
+    justify-content: center;
+}
+.header .header-menu {
+    width: 90%;
+    height: 5vh;
+    display: flex;
+    justify-content: space-between;
+}
+.header image {
+    width: 8vw;
+    height: 5vh;
+}
+.list-box {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    margin-top: 10rpx;
+}
+.list-box .list-i {
+    display: flex;
+    width: 90%;
+    padding: 20rpx 40rpx;
+    border-bottom: 2rpx solid #eee;
+}
+.list-i .text {
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+}
+.list-i .text .title {
+    font-size: 32rpx;
+    margin-bottom: 10rpx;
+}
+.list-i .text .content {
+    font-size: 26rpx;
+    color: #999;
+    white-space:nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+.list-i .time {
+    flex: 1;
+    text-align: center;
+    font-size: 26rpx;
+    color: #999;
+}

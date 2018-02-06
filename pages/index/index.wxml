@@ -1,0 +1,23 @@
+<!--index.wxml-->
+<view class="listPage">
+    <view class="header">
+        <view class="header-menu">
+            <image src="../../img/Category.png" class="menu" />
+            <text>笔记列表</text>
+            <image src="../../img/edit.png" class="edit" />
+        </view>
+    </view>
+    <scroll-view scroll-y class="list-box">
+      <view wx:for="{{mylists}}">
+           <view class="list-i" bindtap="edit" data-id="{{item.id}}">
+                <view class="text">
+                    <text class="title">{{item.title}}</text>
+                    <text class="content">{{item.content}}</text>
+                </view>
+                <view class="time">
+                    <text class="time">{{item.time}}</text>
+                </view>
+            </view>
+      </view>
+    </scroll-view>
+</view>
