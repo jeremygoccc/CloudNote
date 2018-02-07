@@ -1,27 +1,48 @@
-//index.js
-//获取应用实例
+var timeFormat = require("../../utils/util.js");
 
 Page({
   data: {
     mylists: [
         {
-            id: 1,
-            title: "学习",
-            content: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quae nulla ut, dicta reiciendis adipisci officia nemo. Nostrum eos, molestias modi vero, voluptates nulla eligendi saepe tenetur, nesciunt, debitis sit fuga.",
+            id: "",
+            title: "示例",
+            content: "欢迎使用云笔记~",
             time: "18:32"
-        },
-        {
-            id: 2,
-            title: "学习",
-            content: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Numquam, ullam suscipit! Cumque debitis recusandae iste in laudantium culpa aliquid ea inventore commodi, laboriosam natus esse impedit? Iusto voluptatem magni, quisquam.",
-            time: "15:12"
-        },
-        {
-            id: 3,
-            title: "学习",
-            content: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Numquam, ullam suscipit! Cumque debitis recusandae iste in laudantium culpa aliquid ea inventore commodi, laboriosam natus esse impedit? Iusto voluptatem magni, quisquam.",
-            time: "15:12"
-        },
+        }
     ]
   },
+  onLoad: function() {
+    wx.showToast({
+      title: '加载中',
+      icon: 'loading',
+      duration: 1500
+    });
+    typeof this.initData == "function" && this.initData(this);
+  },
+  initData: function(page) {
+    var txt = wx.getStorageSync("txt");
+    console.log(txt);
+    if(txt.length) {
+        txt.forEach(function(item, i) {
+            var t = new Date(Number(item.time));
+            item.time = timeFormat.formatTime(t);
+        })
+    }
+    page.setData({
+        mylists: txt
+    });
+    wx.hideToast();
+  },
+  edit: function(e) {
+    var id = e.currentTarget.dataset.id;
+    wx.navigateTo({
+        url: "../addnote/addnote?id="+id
+    })
+  },
+  add: function() {
+    console.log("Add");
+    wx.navigateTo({
+        url: "../addnote/addnote"
+    })
+  }
 })

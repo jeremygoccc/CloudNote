@@ -1,0 +1,20 @@
+<view class="note">
+    <view class="note-header">
+        <text class="now">当前时间：{{now}}</text>
+        <image src="../../img/save.png" bindtap="save"></image>
+    </view>
+    <view class="textarea">
+        <textarea placeholder="请输入内容…" bindinput="change" value="{{content}}"></textarea>
+    </view>
+    <view class="btn-box">
+        <button class="all">
+            <image src="../../img/all.png"></image>
+        </button>
+        <button class="voice">
+            <image src="../../img/voice.png"></image>
+        </button>
+        <button class="share">
+            <image src="../../img/share.png"></image>
+        </button>
+    </view>
+</view>

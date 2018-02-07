@@ -25,6 +25,12 @@
     padding: 20rpx 40rpx;
     border-bottom: 2rpx solid #eee;
 }
+.i-press {
+    opacity: 0.5;
+}
+.i-pin {
+    background-color: #ccc;
+}
 .list-i .text {
     display: flex;
     flex-direction: column;

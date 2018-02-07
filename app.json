@@ -1,6 +1,7 @@
 {
   "pages":[
     "pages/index/index",
+    "pages/addnote/addnote",
     "pages/logs/logs"
   ],
   "window":{

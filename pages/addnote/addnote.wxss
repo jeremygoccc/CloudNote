@@ -1,0 +1,51 @@
+.note {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+.note .note-header {
+    display: flex;
+    /*justify-content: space-between;*/
+    height: 5vh;
+    line-height: 5vh;
+    margin-right: 30rpx;
+    align-items: center;
+}
+.note .note-header .save, .note .note-header image {
+    width: 6vw;
+    height: 4vh;
+}
+.note .now {
+    width: 100vw;
+    height: 5vh;
+    /*line-height: 5vh;*/
+    font-size: 30rpx;
+    color: #999;
+}
+.note .textarea {
+    height: 90vh;
+    font-size: 28rpx;
+}
+.btn-box {
+    display: flex;
+}
+.btn-box .all, .btn-box .voice, .btn-box .share {
+    flex: 1;
+    height: 10vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #db3434;
+    border-radius: 0;
+}
+.btn-box .all::after, .btn-box .voice::after {
+    border-right: 3rpx solid #fff;
+}
+.btn-box .voice::after, .btn-box .share::after {
+    border-left: 3rpx solid #fff;
+}
+.btn-box image {
+    width: 10vw;
+    height: 6vh;
+}
