@@ -32,7 +32,7 @@ Page({
             time: Date.now()
         })
         typeof this.saveContent == "function" && this.saveContent(this);
-        wx.redirectTo({
+        wx.reLaunch({
             url: "../index/index"
         })
     },
@@ -61,7 +61,7 @@ Page({
                     item.content = page.data.content;
                     editFlag = true;
                 }
-                data.unshift(item);
+                data.push(item);
             })
         }
         if(!editFlag) data.unshift(page.data);  // 新增记事本内容

@@ -2,12 +2,13 @@
   "pages":[
     "pages/index/index",
     "pages/addnote/addnote",
+    "pages/login/login",
     "pages/logs/logs"
   ],
   "window":{
     "backgroundTextStyle":"light",
     "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "云笔记",
+    "navigationBarTitleText": "星眸云笔记",
     "navigationBarTextStyle":"black",
     "navigationStyle": "default"
   }

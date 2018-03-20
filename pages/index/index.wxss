@@ -1,4 +1,8 @@
 /**index.wxss**/
+.title {
+    color: #dc5655;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
 .header {
     display: flex;
     justify-content: center;
@@ -52,4 +56,19 @@
     text-align: center;
     font-size: 26rpx;
     color: #999;
+}
+.list-i .long-tap {
+    background-color: #fff;
+    box-shadow: 1px 1px 1px;
+    width: 25vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /*background-color: #CDCCD0;*/
+    border-radius: 10rpx;
+}
+.list-i .long-tap view {
+    text-align: center;
+    font-size: 30rpx;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 }

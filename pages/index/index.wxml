@@ -2,17 +2,21 @@
 <view class="listPage">
     <view class="header">
         <view class="header-menu">
-            <image src="../../img/Category.png" class="menu" />
-            <text>笔记列表</text>
+            <image src="../../img/menu.png" class="menu" bindtap="login" />
+            <text class="title">笔记列表</text>
             <image src="../../img/edit.png" class="edit" bindtap="add" />
         </view>
     </view>
     <scroll-view scroll-y class="list-box">
       <view wx:for="{{mylists}}">
-           <view class="list-i" bindtap="edit" data-id="{{item.id}}" hover-class="i-press">
+           <view class="list-i" bindtap="edit" bindlongpress="press" data-id="{{item.id}}" hover-class="i-press">
                 <view class="text">
                     <text class="title">{{item.title}}</text>
                     <text class="content">{{item.content}}</text>
+                </view>
+                <view style="display:{{pressFlag?'none':''}}" class="long-tap">
+                    <!-- <view class="pin">置顶</view> -->
+                    <view class="del" catchtap="delete" data-id="{{item.id}}">删除</view>
                 </view>
                 <view class="time">
                     <text class="time">{{item.time}}</text>
