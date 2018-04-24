@@ -1,20 +1,22 @@
 <view class="page">
     <view class="login-box">
         <view class="list">
-            <view data-flag="Sign In" class="sign-in {{signFlag=='Sign In'?'sign-active':''}}" bindtap="signClick">Sign In</view>
-            <view data-flag="Sign Up" class="sign-up {{signFlag=='Sign Up'?'sign-active':''}}" bindtap="signClick">Sign Up</view>
+            <view data-flag="Sign In" class="sign-in {{signFlag=='Sign In'?'sign-active':''}}" bindtap="signClick" hover-class="hover-press">Sign In</view>
+            <view data-flag="Sign Up" class="sign-up {{signFlag=='Sign Up'?'sign-active':''}}" bindtap="signClick" hover-class="hover-press" hover-class="hover-press" >Sign Up</view>
         </view>
-        <view class="input">
-            <input type="text" placeholder="Email" />
-            <input type="text" placeholder="Password" />
-            <input style="display:{{signFlag=='Sign In'?'none':''}}" type="text" placeholder="Repassword" />
-        </view>
-        <view class="btn">
-            <button class="sign">{{signFlag}}</button>
-        </view>
+        <form bindsubmit="formsubmit">
+            <view class="input">
+                <input type="text" required="required" name="email" placeholder="Email"  hover-class="hover-press" />
+                <input type="password" required="required" name="password" placeholder="Password"  hover-class="hover-press" />
+                <input style="display:{{signFlag=='Sign In'?'none':''}}" name="{{signFlag=='Sign In'?'none':'repassword'}}" type="password" placeholder="Repassword"  hover-class="hover-press" />
+            </view>
+            <view class="btn">
+                <button class="sign" formType="submit" hover-class="hover-press">{{signFlag}}</button>
+            </view>
+        </form>
         <view class="hits" style="justify-content:{{signFlag=='Sign In'?'space-between':'center'}}">
-            <view class="wechat">Login with WeChat</view>
-            <view class="forget" hidden="{{signFlag=='Sign Up'?true:false}}" bindtap="forgetPass">Forgot password</view>
+            <view class="wechat" bindtap="loginWechat" hover-class="hover-press">Login with WeChat</view>
+            <view class="forget" hidden="{{signFlag=='Sign Up'?true:false}}" bindtap="forgetPass" hover-class="hover-press">Forgot password</view>
         </view>
     </view>
 </view>

@@ -1,15 +1,15 @@
 {
 	"description": "项目配置文件。",
 	"setting": {
-		"urlCheck": true,
+		"urlCheck": false,
 		"es6": true,
 		"postcss": true,
 		"minified": true,
 		"newFeature": true
 	},
 	"compileType": "miniprogram",
-	"libVersion": "1.9.8",
-	"appid": "wx5ff8aa321a326e2c",
+	"libVersion": "2.0.0",
+	"appid": "wx58cb9a0e27c46700",
 	"projectname": "note",
 	"isGameTourist": false,
 	"condition": {

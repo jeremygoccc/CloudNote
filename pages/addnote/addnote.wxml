@@ -6,15 +6,24 @@
     <view class="textarea">
         <textarea placeholder="请输入内容…" bindinput="change" value="{{content}}"></textarea>
     </view>
+    <view wx:if="{{voicing}}" class="sound-view">
+        <image class="sound-style" src="../../img/voice_icon_speech_sound_1.png" ></image>
+        <image wx:if="{{frame==2}}" class="sound-style" src="../../img/voice_icon_speech_sound_2.png" ></image>
+        <image wx:if="{{frame==3}}" class="sound-style" src="../../img/voice_icon_speech_sound_3.png" ></image>
+        <image wx:if="{{frame==4}}" class="sound-style" src="../../img/voice_icon_speech_sound_4.png" ></image>
+        <image wx:if="{{frame==5}}"class="sound-style" src="../../img/voice_icon_speech_sound_5.png" ></image>
+    </view>
+    <view class="place">{{place.title}}</view>
     <view class="btn-box">
-        <button class="all">
+        <button class="all" bindtap="showPlace">
             <image src="../../img/all.png"></image>
         </button>
-        <button class="voice">
+        <button class="voice" bindtouchstart="record" bindtouchend="end">
             <image src="../../img/voice.png"></image>
         </button>
-        <button class="share">
+        <button class="share" open-type="share">
             <image src="../../img/share.png"></image>
         </button>
     </view>
+    <!-- <canvas id="shareCanvas"></canvas> -->
 </view>

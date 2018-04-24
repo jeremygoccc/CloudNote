@@ -1,4 +1,7 @@
-var timeFormat = require("../../utils/util.js");
+var util = require("../../utils/util.js");
+const INFO_URL = 'https://login.jeremygo.cn/getInfo';
+
+var requestPromised = util.wxPromisify(wx.request);
 
 Page({
   data: {
@@ -7,17 +10,24 @@ Page({
             id: "",
             title: "示例",
             content: "欢迎使用云笔记~",
-            time: "18:32"
+            time: "18:32",
+            place: {}
         }
     ],
-    pressFlag: true
+    pressFlag: true,
+    logining: false
   },
-  onLoad: function() {
+  onLoad: function(e) {
     wx.showToast({
-      title: '加载中',
-      icon: 'loading',
-      duration: 1500
+        title: '加载中',
+        icon: 'loading',
+        duration: 1500
     });
+    if (e.logining) {
+        this.setData({
+            logining: true
+        });
+    }
     typeof this.initData == "function" && this.initData(this);
   },
   initData: function(page) {
@@ -26,9 +36,40 @@ Page({
     if(txt.length) {
         txt.forEach(function(item, i) {
             var t = new Date(Number(item.time));
-            item.time = timeFormat.formatTime(t);
+            item.time = util.formatTime(t);
         })
-    } else return;
+    } else if(this.data.logining) { // 从服务器取数据
+        console.log("logining");
+        var openid = wx.getStorageSync("openid");
+        requestPromised({
+            url: INFO_URL,
+            data: {
+                openid: openid
+            }
+        }).then(function(res) {
+            console.log(res.data);
+            txt = res.data.data;
+            wx.setStorageSync("txt", txt);
+            var newTxt = [];
+            if(txt.length) {
+                txt.forEach(function(item, i) {
+                    var t = new Date(Number(item.time));
+                    item.time = util.formatTime(t);
+                    console.log(item);
+                    newTxt.unshift(item);
+                })
+            } else return;
+            page.setData({
+                mylists: newTxt
+            });
+            wx.hideToast();
+            return;
+        }).catch(function(res) {
+            console.log(res);
+        })
+    }
+    console.log(txt);
+    if(!txt.length) return;
     page.setData({
         mylists: txt
     });
