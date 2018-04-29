@@ -22,20 +22,20 @@ const formatNumber = n => {
 }
 
 // 显示繁忙提示
-var showBusy = text => wx.showToast({
+const showBusy = text => wx.showToast({
     title: text,
     icon: 'loading',
-    duration: 30000
+    duration: 3000
 })
 
 // 显示成功提示
-var showSuccess = text => wx.showToast({
+const showSuccess = text => wx.showToast({
     title: text,
     icon: 'success'
 })
 
 // 显示失败提示
-var showModel = (title, content) => {
+const showModel = (title, content) => {
     wx.hideToast();
 
     wx.showModal({
@@ -45,16 +45,16 @@ var showModel = (title, content) => {
     })
 }
 
-var showTips = tips => wx.showToast({
+const showTips = tips => wx.showToast({
     title: tips,
-    image: '/utils/warning.png',
+    image: '../img/warning.png',
     duration: 2000
 })
 
-var getUnique = () => 15970706944 * Math.ceil(Math.random());
+const getUnique = () => 15970706944 * Math.ceil(Math.random());
 
 // 将小程序API封装成支持Promise的API
-var wxPromisify = fn => {
+const wxPromisify = fn => {
     return function(obj = {}) {
       return new Promise((resolve, reject) => {
         obj.success = res => { resolve(res); }
@@ -64,4 +64,39 @@ var wxPromisify = fn => {
     }
 }
 
-module.exports = { formatTime, showBusy, showSuccess, showModel, showTips, getUnique, wxPromisify, demo }
+// 时间差判断
+const setInter = time => {
+    setInterval(function(){
+        console.log("checking");
+        var txt = wx.getStorageSync("txt");
+        if (txt) {
+            txt.forEach(function(item) {
+                // console.log(padAlarm(item.alarmTime));
+                // console.log(formatTime(new Date(Date.now())));
+                // console.log(Math.abs(Date.now() - new Date(padAlarm(item.alarmTime)).valueOf()));
+                if (Math.abs(Date.now() - new Date(padAlarm(item.alarmTime)).valueOf()) <= time) {
+                    wx.vibrateLong({
+                        success: function(res) {
+                            console.log(res);
+                        },
+                        fail: function(res) {
+                            console.log(res);
+                        }
+                    });
+                }
+            });
+        }
+    }, time);
+}
+
+// 扩展闹钟时间加上年月日
+const padAlarm = time => {
+    const now = new Date(Number(Date.now()));
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+
+    return [year, month, day].map(formatNumber).join('/') + ' ' + time;
+}
+
+module.exports = { formatTime, formatNumber, showBusy, showSuccess, showModel, showTips, getUnique, wxPromisify, demo, setInter }

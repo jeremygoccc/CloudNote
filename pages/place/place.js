@@ -126,11 +126,33 @@ Page({
     });
   },
   bindChange: function(e) {
+    var that = this;
     console.log(this.data.placeItems[e.detail.value]);
+    var latitude = this.data.placeItems[e.detail.value].location.lat;
+    var longitude = this.data.placeItems[e.detail.value].location.lng;
     place = this.data.placeItems[e.detail.value];
+    that.setData({
+            longitude: longitude,
+            latitude: latitude,
+            markers: [
+              {
+                id: 0,
+                // title: '移动红点到你想要接受提醒的位置',
+                iconPath: "../../img/bposition.png",
+                longitude: longitude,
+                latitude: latitude,
+                width: 30,
+                height: 30
+              }
+            ]
+          })
   },
   confirmPlace: function() {
     console.log("noteId: " + noteId);
+    if(this.data.placeItems.length == 0) {
+      util.showBusy("请输入地点");
+      return;
+    }
     var arr = wx.getStorageSync("txt");
     if(arr.length) {
         arr.forEach(function(item) {
@@ -143,6 +165,11 @@ Page({
     wx.redirectTo({
         url: "../addnote/addnote?id="+noteId
     });
+  },
+  back: function() {
+    wx.navigateBack({
+        delta: 1
+    })
   }
 
 })

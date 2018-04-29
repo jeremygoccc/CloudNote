@@ -1,0 +1,11 @@
+<view>
+    <view class="info">
+        <view class="img">
+            <image src="{{userinfo.avatarUrl ? userinfo.avatarUrl: 'https://ws1.sinaimg.cn/large/e4336439gy1fqs83nja08j205u063t8m.jpg'}}" />
+        </view>
+        <view class="nick">{{userinfo}}</view>
+        <view class="count">笔记数：{{count}}</view>
+    </view>
+    <button class="logout" bindtap="logout" type="warn">退出</button>
+    <view class="about-us" bindtap="aboutUs">关于我们</view>
+</view>

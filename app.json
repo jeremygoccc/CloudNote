@@ -1,17 +1,18 @@
 {
   "pages":[
     "pages/index/index",
-    "pages/addnote/addnote",
-    "pages/login/login",
-    "pages/logs/logs",
     "pages/place/place",
-    "pages/map/map"
-
+    "pages/addnote/addnote",
+    "pages/userinfo/userinfo",
+    "pages/logs/logs",
+    "pages/map/map",
+    "pages/aboutus/aboutus",
+    "pages/login/login"
   ],
   "window":{
     "backgroundTextStyle":"light",
     "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "星眸云笔记",
+    "navigationBarTitleText": "星眸云Note",
     "navigationBarTextStyle":"black",
     "navigationStyle": "default"
   }

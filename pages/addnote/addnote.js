@@ -5,9 +5,13 @@ const recordOptions = {
     sampleRate: 16000,
     numberOfChannels: 1,
     encodeBitRate: 48000,
-    format: 'mp3'
-    //frameSize: 50
+    format: 'mp3',
+    frameSize: 50
 };
+
+const innerAudioContext = wx.createInnerAudioContext();
+const saveFilePromised = util.wxPromisify(wx.saveFile);
+
 // const API_URL = 'https://voice.jeremygo.cn';
 
 const API_URL = "https://api.happycxz.com/wxapp/mp32asr";
@@ -16,24 +20,43 @@ const app_secret = "3d969f5472fc4bc8a915f86ff044e2bf";
 
 var id;
 var timer;
+var startTime = 0;
+var endTime = 0;
 
 Page({
     data: {
+        item: {
+            id: '',
+            voicing: false,
+            content: '',
+            frame: 1,
+            place: '',
+            alarmTime: '',
+            pin: 0,
+            savedFilePath: '',
+            duration: 0,
+            voiceFlag: false,
+            saveFlag: false,
+        },
         now: util.formatTime(new Date(Number(Date.now()))),
-        voicing: false,
-        content: '',
-        frame: 1,
-        place: ''
+        showMenu: false,
+        showTime: false
     },
     onLoad: function(e) {
+        console.log(Date.now());
         console.log(e);
         id = e.id;
         const _this = this;
         if(id) { // id存在则为修改记事本
             typeof this.getData == "function" && this.getData(id, this);
+            _this.setData({
+                saveFlag: true
+            });
         } else { // id不存在则为新增记事本
+            var item = this.data.item;
+            item.id = Date.now();
             this.setData({
-                id: Date.now()  // id为当前时间,并绑定到页面实例
+                item: item  // id为当前时间,并绑定到页面实例
             })
         }
         recorderManager.onStart(() => {
@@ -41,48 +64,65 @@ Page({
         })
         recorderManager.onStop((res) => {
             console.log('recorder stop', res);
-            // const { tempFilePaths } = res;
-            // wx.saveFile({
-            //     tempFilePath: res.tempFilePath,
-            //     success: function(res) {
-            //         var savedFilePath = res.savedFilePath;
-            //         console.log('savedFilePath: ' + savedFilePath);
-            //     }
-            // });
-            wx.uploadFile({
-                url: API_URL,
-                filePath: res.tempFilePath,
-                name: 'file',
-                header: {
-                  'Content-Type': 'multipart/form-data'
-                },
-                formData: {
-                    "appKey": app_key,
-                    "appSecret": app_secret,
-                    "userId": util.getUnique()
-                },
-                success: function(res) {
-                    console.log("res.data: " + res.data);
-                    let data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
-                    if(data.msg == "olami asr success!") {
-                        var nliRes = _this.getNliFromRes(res.data);
-                        console.log('nliRes: ' + nliRes);
-                        var stt = _this.getSttFromRes(res.data);
-                        console.log('stt: ' + stt);
-                        var content = _this.setData.content + ',' + stt;
-                        _this.setData({
-                            content: content
-                        });
-                    } else {
-                        util.showBusy("识别失败，请重试");
-                    }
-                },
-                fail: function(res) {
-                    console.log(res);
-                    util.showModel('提示', '网络请求失败…');
-                }
+            wx.showLoading({
+                title: '识别中'
             });
+            // const { tempFilePaths } = res;
+            var duration = Math.ceil((this.endTime - this.startTime)/1000);
+            console.log(duration);
+            saveFilePromised({
+                tempFilePath: res.tempFilePath,
+            }).then(function(res) {
+                var savedFilePath = res.savedFilePath;
+                console.log('savedFilePath: ' + savedFilePath);
+                _this.setData({
+                    voiceFlag: true,
+                    duration: duration,
+                    savedFilePath: savedFilePath
+                });
+                wx.uploadFile({
+                    url: API_URL,
+                    filePath: _this.data.savedFilePath,
+                    name: 'file',
+                    header: {
+                      'Content-Type': 'multipart/form-data'
+                    },
+                    formData: {
+                        "appKey": app_key,
+                        "appSecret": app_secret,
+                        "userId": util.getUnique()
+                    },
+                    success: function(res) {
+                        wx.hideLoading();
+                        console.log("res.data: " + res.data);
+                        let data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+                        if(data.msg == "olami asr success!") {
+                            var nliRes = _this.getNliFromRes(res.data);
+                            console.log('nliRes: ' + nliRes);
+                            var stt = _this.getSttFromRes(res.data);
+                            console.log('stt: ' + stt);
+                            var content = _this.data.content ? _this.data.content + ',' + stt : stt;
+                            _this.setData({
+                                content: content
+                            });
+                        } else {
+                            util.showBusy("识别失败，请重试");
+                        }
+                    },
+                    fail: function(res) {
+                        console.log(res);
+                        util.showModel('提示', '网络请求失败…');
+                    }
+                });
+            })
             console.log("录音文件保存成功");
+        });
+    },
+    onUnload: function() {
+        console.log("onUnload");
+        this.save();
+        wx.redirectTo({
+            url: '../index/index'
         });
     },
     getNliFromRes: function(res_data) {
@@ -97,19 +137,22 @@ Page({
     },
     change: function(e) {
         console.log(e);
+        var item = this.data.item;
+        item.content = e.detail.value;
         this.setData({
-            content: e.detail.value
+            item: item
         })
     },
     save: function() {
         // 判断内容是否为空或者为空格
         console.log("save");
         var re = /^\s*$/g,
-            content = this.data.content;
+            content = this.data.item.content;
         if(!content || re.test(content)) return;
+        var item = this.data.item;
+        item.time = Date.now();
         this.setData({
-            title: content.slice(0, 4),
-            time: Date.now()
+            item: item
         })
         typeof this.saveContent == "function" && this.saveContent(this);
         wx.reLaunch({
@@ -117,45 +160,62 @@ Page({
         })
     },
     getData: function(id, page) {
+        this.setData({
+            saveFlag: true
+        });
         var arr = wx.getStorageSync("txt");
         arr.forEach(function(item) {
             if(!arr.length) return;
             if(item.id == id) {
+                console.log(item);
                 page.setData({
-                    id: item.id,
-                    title: item.title,
-                    content: item.content,
-                    place: item.place
+                    item: item
                 })
             }
-        })
+        });
+        if (page.data.item.duration) {
+            page.setData({
+                voiceFlag: true
+            });
+        }
+        if (page.data.item.alarmTime) {
+            page.setData({
+                showTime: true
+            });
+        }
     },
     saveContent: function(page) {
+        const _this = this;
         var arr = wx.getStorageSync("txt");
-        var data = [],
-            editFlag = false;
+        var data = [];
+        var editFlag = false;
         if(arr.length) {
             arr.forEach(function(item) {
-                if(item.id == page.data.id) {
+                if(item.id == page.data.item.id) {
+                    item = _this.data.item;
                     item.time = Date.now();
-                    item.title = page.data.content.slice(0, 4);
-                    item.content = page.data.content;
-                    item.place = page.data.place;
                     editFlag = true;
                 }
-                console.log(item);
                 data.push(item);
             })
         }
-        data.sort(function(pre, next) {
+        if(!editFlag) data.unshift(this.data.item);
+        var pinData = [];
+        var unPin = [];
+        data.forEach(item => {
+            item.pin === 1 ? pinData.push(item) : unPin.push(item);
+        });
+        unPin.sort(function(pre, next) {
             return next.time - pre.time;
         });
-        if(!editFlag) data.unshift(page.data);  // 新增记事本内容
-        wx.setStorageSync("txt", data);
+        var newData = pinData.concat(unPin);
+        console.log(newData);
+        wx.setStorageSync("txt", newData);
         console.log("save success");
     },
     record: function() {
         console.log(recorderManager);
+        this.startTime = Date.now();
         this.setData({
             voicing: true
         });
@@ -164,6 +224,7 @@ Page({
     },
     end: function() {
         console.log("录音结束");
+        this.endTime = Date.now();
         this.setData({
             voicing: false
         });
@@ -181,23 +242,21 @@ Page({
             });
         }, 200);
     },
-    share: function() {
-        console.log("share");
-        wx.canvasToTempFilePath({
-            x: 100,
-            y: 200,
-            width: 50,
-            height: 50,
-            destWidth: 100,
-            destHeight: 100,
-            canvasId: 'shareCanvas',
-            success: function(res) {
-                console.log(res.tempFilePath);
-            },
-            fail: function(res) {
-                console.log(res);
-            }
-        })
+    voicePlay: function(e) {
+        var voicePath = e.target.dataset.voice;
+        console.log(voicePath);
+        innerAudioContext.src = voicePath;
+        innerAudioContext.play();
+        innerAudioContext.onError((res) => {
+            console.log(res);
+        });
+        innerAudioContext.onPlay(() => {
+            console.log("开始播放");
+        });
+    },
+    voiceEnd: function(e) {
+        console.log("voiceEnd");
+        innerAudioContext.stop();
     },
     onShareAppMessgae: function(res) {
         if (res.from === 'button') {
@@ -215,10 +274,111 @@ Page({
             }
         }
     },
+    showMenu: function() {
+        this.setData({
+            showMenu: !this.data.showMenu
+        });
+    },
+    showTime: function() {
+        if (!this.data.saveFlag) {
+            util.showBusy("请先保存当前笔记");
+            return;
+        }
+        this.setData({
+            showTime: !this.data.showTime
+        });
+    },
+    cancelTime: function() {
+        if (this.data.item.alarmTime) {
+            const context = this;
+            wx.showModal({
+                content: "确认取消闹钟？",
+                confirmText: "确认",
+                cancelText: "取消",
+                success: res => {
+                    if(res.confirm) {
+                      typeof context.canTime == "function" && context.canTime(context, id);
+                    } else {
+                        console.log("用户点击取消");
+                    }
+                }
+            });
+        }
+    },
+    canTime: function(context, id) {
+        var arr = wx.getStorageSync("txt");
+        if(arr.length) {
+            arr.forEach(function(item) {
+                if(item.id == id) {
+                    item.alarmTime = ''
+                }
+            })
+        }
+        wx.setStorageSync("txt", arr);
+        wx.redirectTo({
+            url: "../addnote/addnote?id="+this.data.item.id
+        });
+        console.log("取消闹钟成功");
+    },
     showPlace: function(e) {
         console.log(e);
+        if (!this.data.saveFlag) {
+            util.showBusy("请先保存当前笔记");
+            return;
+        }
         wx.navigateTo({
-            url: "../place/place?id="+id
+            url: "../place/place?id="+this.data.item.id
         })
+    },
+    cancelPlace: function() {
+        if (this.data.item.place) {
+            const context = this;
+            wx.showModal({
+                content: "确认取消地点？",
+                confirmText: "确认",
+                cancelText: "取消",
+                success: res => {
+                    if(res.confirm) {
+                      typeof context.canPlace == "function" && context.canPlace(context, id);
+                    } else {
+                        console.log("用户点击取消");
+                    }
+                }
+            });
+        }
+    },
+    canPlace: function(context, id) {
+        var arr = wx.getStorageSync("txt");
+        if(arr.length) {
+            arr.forEach(function(item) {
+                if(item.id == id) {
+                    item.place = ''
+                }
+            })
+        }
+        wx.setStorageSync("txt", arr);
+        wx.redirectTo({
+            url: "../addnote/addnote?id="+this.data.item.id
+        });
+    },
+    bindTimeChange: function(e) {
+        const _this = this;
+        var item = this.data.item;
+        item.alarmTime = e.detail.value;
+        this.setData({
+            item: item
+        });
+        var arr = wx.getStorageSync("txt");
+        if(arr.length) {
+            arr.forEach(function(item) {
+                if(item.id == _this.data.item.id) {
+                    item.alarmTime = e.detail.value
+                }
+            })
+        }
+        wx.setStorageSync("txt", arr);
+        console.log(arr);
+        clearInterval(util.setInter);
+        util.setInter(1000);
     }
 })

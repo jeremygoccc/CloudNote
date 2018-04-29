@@ -1,6 +1,7 @@
 var util = require("../../utils/util.js");
 const LOGIN_URL = 'https://login.jeremygo.cn';
 const UPLOAD_URL = 'https://login.jeremygo.cn/upload';
+const getUserInfoPromised = util.wxPromisify(wx.getUserInfo);
 
 Page({
     data: {
@@ -17,34 +18,39 @@ Page({
     loginWechat: function() {
         console.log("loginWechat");
         const _this = this;
-        wx.login({
-            success: function(res) {
-                var code = res.code;
-                if (code) {
-                    console.log("获取用户登录凭证: " + code);
-                    wx.request({
-                        url: LOGIN_URL,
-                        data: {
-                            code: code
-                        },
-                        success: function(res) {
-                            console.log(res.data);
-                            // let data = JSON.parse(res.data);
-                            let session_id = res.data.session_id;
-                            let openid = res.data.openid;
-                            wx.setStorageSync('session_id', session_id);
-                            wx.setStorageSync('openid', openid);
-                            util.showSuccess("登录成功");
-                            _this.uploadNote();
-                        },
-                        fail: function(res) {
-                            console.log(res);
-                        }
-                    });
-                } else {
-                    console.log("获取用户登录凭证失败： " + res.errMsg);
+        getUserInfoPromised({
+        }).then(function(res) {
+            wx.setStorageSync("userInfo", res.userInfo);
+            console.log(res);
+            wx.login({
+                success: function(res) {
+                    var code = res.code;
+                    if (code) {
+                        console.log("获取用户登录凭证: " + code);
+                        wx.request({
+                            url: LOGIN_URL,
+                            data: {
+                                code: code
+                            },
+                            success: function(res) {
+                                console.log(res.data);
+                                // let data = JSON.parse(res.data);
+                                let session_id = res.data.session_id;
+                                let openid = res.data.openid;
+                                wx.setStorageSync('session_id', session_id);
+                                wx.setStorageSync('openid', openid);
+                                util.showSuccess("登录成功");
+                                _this.uploadNote();
+                            },
+                            fail: function(res) {
+                                console.log(res);
+                            }
+                        });
+                    } else {
+                        console.log("获取用户登录凭证失败： " + res.errMsg);
+                    }
                 }
-            }
+            });
         });
     },
     uploadNote: function() {
@@ -64,7 +70,7 @@ Page({
                         util.showSuccess("笔记上传成功");
                         setTimeout(function() {   // 笔记上传至数据库后跳转回首页
                             wx.redirectTo({
-                                url: '../index/index?logining=true'
+                                url: '../index/index'
                             });
                         }, 100);
                     } else {
@@ -77,7 +83,7 @@ Page({
             });
         } else {
             wx.redirectTo({
-                url: '../index/index?logining=true'
+                url: '../index/index'
             });
         }
     },
@@ -89,22 +95,26 @@ Page({
         var reg = new RegExp("^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$");//验证邮箱
         console.log(e.detail.value);
 
-        if(e.detail.value.email.length==0)
+        if(e.detail.value.email.length==0) {
             wx.showToast({
                 title:'输入邮箱',
                 icon:'loading',
                 duration:1500
-            })
-        else if(!reg.test(e.detail.value.email))
-             wx.showToast({
+            });
+            return;
+        }
+        else if(!reg.test(e.detail.value.email)) {
+            wx.showToast({
                 title:'邮箱格式错误',
                 icon:'loading',
                 duration:1500
-            })
+            });
+            return;
+        }
          if("undefined" != typeof e.detail.value.none)
          {
             wx.request({
-                url: 'http://127.0.0.1/node/public/denglu',
+                url: 'https://node.gongbarry.xyz/denglu',
                 header: {
                     'Content-type': 'application/x-www-form-urlencoded'
                 },
@@ -117,6 +127,7 @@ Page({
                     console.log(res);
                     if (res.data.status === 1) {
                         util.showSuccess("登录成功");
+                        wx.setStorageSync('email', e.detail.value.email);
                         _this.uploadNote();
                     } else {
                         util.showBusy("网络繁忙，请重试");
@@ -150,7 +161,7 @@ Page({
              else
              {
                 wx.request({
-                    url: 'http://127.0.0.1/node/public/sign_email',
+                    url: 'https://node.gongbarry.xyz/sign_email',
                     header: {
                         'Content-type': 'application/x-www-form-urlencoded'
                     },
@@ -160,8 +171,10 @@ Page({
                         password:e.detail.value.password
                     },
                     success: function(res){
+                        console.log(res);
                         if (res.data.status === 1) {
-                            util.showSuccess("登录成功");
+                            util.showSuccess("注册成功");
+                            wx.setStorageSync('email', e.detail.value.email);
                             _this.uploadNote();
                         } else {
                             util.showBusy("网络繁忙，请重试");

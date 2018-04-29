@@ -4,8 +4,8 @@
 <!-- <view>{{location}}</view> -->
 <picker-view wx:if="{{locating}}" indicator-style="height: 50px;" style="width: 100%; height: 100px" value="{{value}}" bindchange="bindChange">
     <picker-view-column>
-        <view wx:for="{{placeItems}}" style="line-height: 50px">{{item.address}}</view>
+        <view wx:for="{{placeItems}}" style="line-height: 50px">{{item.title}}</view>
     </picker-view-column>
 </picker-view>
-<button class="anniu1" bindtap="confirmPlace">确定</button>
-<button class="anniu2">取消</button>
+<button class="anniu1" type="primary" bindtap="confirmPlace">确定</button>
+<button class="anniu2" type="warn" bindtap="back">取消</button>

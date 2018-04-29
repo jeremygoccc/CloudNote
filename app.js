@@ -1,6 +1,7 @@
 //app.js
+import Touches from './utils/Touches.js';
 App({
-  onLaunch: function () {
+    onLaunch: function () {
     // 展示本地存储能力
     var logs = wx.getStorageSync('logs') || []
     logs.unshift(Date.now())
@@ -21,7 +22,7 @@ App({
             success: res => {
               // 可以将 res 发送给后台解码出 unionId
               this.globalData.userInfo = res.userInfo
-
+              console.log(this.globalData.userInfo);
               // 由于 getUserInfo 是网络请求，可能会在 Page.onLoad 之后才返回
               // 所以此处加入 callback 以防止这种情况
               if (this.userInfoReadyCallback) {
@@ -32,28 +33,31 @@ App({
         }
       }
     })
-  },
-  getLocationInfo: function (cb) {
-    var that = this;
-    if (this.globalData.locationInfo) {
-      cb(this.globalData.locationInfo)
-    } else {
-      wx.getLocation({
-        type: 'gcj02', // 默认为 wgs84 返回 gps 坐标，gcj02 返回可用于 wx.openLocation 的坐标
-        success: function (res) {
-          that.globalData.locationInfo = res;
-          cb(that.globalData.locationInfo)
-        },
-        fail: function () {
-          // fail
-        },
-        complete: function () {
-          // complete
-        }
-      })
-    }
-  },
-  globalData: {
-    userInfo: null
-  }
+    },
+    onLoad: function() {
+    },
+    getLocationInfo: function (cb) {
+      var that = this;
+      if (this.globalData.locationInfo) {
+        cb(this.globalData.locationInfo)
+      } else {
+        wx.getLocation({
+          type: 'gcj02', // 默认为 wgs84 返回 gps 坐标，gcj02 返回可用于 wx.openLocation 的坐标
+          success: function (res) {
+            that.globalData.locationInfo = res;
+            cb(that.globalData.locationInfo)
+          },
+          fail: function () {
+            // fail
+          },
+          complete: function () {
+            // complete
+          }
+        })
+      }
+    },
+    globalData: {
+      userInfo: null
+    },
+    Touches: new Touches()
 })

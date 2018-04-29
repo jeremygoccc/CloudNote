@@ -11,8 +11,10 @@
 }*/
 .loca-input {
     margin-top: 10%;
-    background-color: #ccc;
+    padding-left: 5rpx;
 }
 .anniu1, .anniu2{
-	margin-top: 5%;
+	margin-top: 10%;
+    width: 90vw;
+    font-size: 30rpx;
 }
