@@ -4,7 +4,7 @@
         <!-- <image src="../../img/save.png" bindtap="save"></image> -->
     </view>
     <view class="textarea">
-        <textarea show-confirm-bar placeholder="请输入内容…" bindinput="change" value="{{item.content}}"></textarea>
+        <textarea show-confirm-bar auto-height placeholder="请输入内容…" bindinput="change" value="{{item.content}}" maxlength="-1"></textarea>
     </view>
     <view class="section fade" wx:if="{{showTime}}">
       <picker mode="time" value="{{time}}" start="00:00" end="24:00" bindchange="bindTimeChange">

@@ -9,11 +9,13 @@ var mysql = require('mysql').createConnection({
     port: '3306',
     user: 'hjk',
     password: '456456',
-    database: 'node'
+    database: 'node',
+    useConnectionPooling: true
 });
 
 Q.promisifyAll(rediz.RedisClient.prototype);
 Q.promisifyAll(rediz.Multi.prototype);
+Q.promisify(mysql.query);
 
 var redis = rediz.createClient({
     "host": "127.0.0.1",
@@ -70,8 +72,11 @@ app.get('/upload', function(req, res, next) {
     let txts = JSON.parse(req.query.txt);
     let u_openid = req.query.u_openid;
     var uploadFlag = true;
+    var resOb = res;
     for(let txt of txts) {
         var addSql = "INSERT INTO n_note_info(u_openid, id, title, content, time)VALUES(?,?,?,?,?)";
+        txt.title = txt.content.split('：')[0] || txt.content.split(':')[0];
+        console.log(txt.title);
         var addSqlParams = [u_openid, txt.id, txt.title, txt.content, txt.time];
         mysql.query(addSql, addSqlParams, function(err, res) {
             if(err) {
@@ -85,6 +90,7 @@ app.get('/upload', function(req, res, next) {
             console.log('-----------------------------------------------------------------\n\n');
         });
     }
+    // console.log(uploadFlag);
     if (uploadFlag === false) {
         res.json({
             statusCode: 400,
