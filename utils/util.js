@@ -67,13 +67,10 @@ const wxPromisify = fn => {
 // 时间差判断
 const setInter = time => {
     setInterval(function(){
-        console.log("checking");
+        // console.log("checking");
         var txt = wx.getStorageSync("txt");
         if (txt) {
             txt.forEach(function(item) {
-                // console.log(padAlarm(item.alarmTime));
-                // console.log(formatTime(new Date(Date.now())));
-                // console.log(Math.abs(Date.now() - new Date(padAlarm(item.alarmTime)).valueOf()));
                 if (Math.abs(Date.now() - new Date(padAlarm(item.alarmTime)).valueOf()) <= time) {
                     wx.vibrateLong({
                         success: function(res) {

@@ -43,8 +43,6 @@ Page({
         showTime: false
     },
     onLoad: function(e) {
-        console.log(Date.now());
-        console.log(e);
         id = e.id;
         const _this = this;
         if(id) { // id存在则为修改记事本
@@ -75,14 +73,17 @@ Page({
             }).then(function(res) {
                 var savedFilePath = res.savedFilePath;
                 console.log('savedFilePath: ' + savedFilePath);
+                var item = _this.data.item;
+                item.voiceFlag = true;
+                item.duration = duration;
+                item.savedFilePath = savedFilePath;
                 _this.setData({
-                    voiceFlag: true,
-                    duration: duration,
-                    savedFilePath: savedFilePath
+                    item: item
                 });
+                console.log(_this.data.item);
                 wx.uploadFile({
                     url: API_URL,
-                    filePath: _this.data.savedFilePath,
+                    filePath: _this.data.item.savedFilePath,
                     name: 'file',
                     header: {
                       'Content-Type': 'multipart/form-data'
@@ -101,9 +102,12 @@ Page({
                             console.log('nliRes: ' + nliRes);
                             var stt = _this.getSttFromRes(res.data);
                             console.log('stt: ' + stt);
-                            var content = _this.data.content ? _this.data.content + ',' + stt : stt;
+                            var item = _this.data.item;
+                            var content = _this.data.item.content ? _this.data.item.content + ',' + stt : stt;
+                            item.content = content;
+                            console.log(item);
                             _this.setData({
-                                content: content
+                                item: item
                             });
                         } else {
                             util.showBusy("识别失败，请重试");
@@ -146,16 +150,17 @@ Page({
     save: function() {
         // 判断内容是否为空或者为空格
         console.log("save");
-        var re = /^\s*$/g,
-            content = this.data.item.content;
+        var re = /^\s*$/g;
+        var content = this.data.item.content;
         if(!content || re.test(content)) return;
         var item = this.data.item;
         item.time = Date.now();
+        console.log(item);
         this.setData({
             item: item
         })
         typeof this.saveContent == "function" && this.saveContent(this);
-        wx.reLaunch({
+        wx.redirectTo({
             url: "../index/index"
         })
     },
@@ -191,6 +196,8 @@ Page({
         var editFlag = false;
         if(arr.length) {
             arr.forEach(function(item) {
+                console.log(item);
+                console.log(_this.data.item);
                 if(item.id == page.data.item.id) {
                     item = _this.data.item;
                     item.time = Date.now();

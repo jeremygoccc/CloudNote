@@ -111,6 +111,9 @@ Page({
             });
             return;
         }
+        wx.showLoading({
+            title: '提交中'
+        });
          if("undefined" != typeof e.detail.value.none)
          {
             wx.request({
@@ -125,6 +128,7 @@ Page({
                 },
                 success: function(res){
                     console.log(res);
+                    wx.hideLoading();
                     if (res.data.status === 1) {
                         util.showSuccess("登录成功");
                         wx.setStorageSync('email', e.detail.value.email);
@@ -143,7 +147,8 @@ Page({
             })
          }
          if("undefined" != typeof e.detail.value.repassword)//注册
-         {            console.log("注册");
+         {
+            console.log("注册");
             if(e.detail.value.password.length < 6)
                  wx.showToast({
                     title:'密码长度过短',
@@ -172,10 +177,9 @@ Page({
                     },
                     success: function(res){
                         console.log(res);
+                        wx.hideLoading();
                         if (res.data.status === 1) {
                             util.showSuccess("注册成功");
-                            wx.setStorageSync('email', e.detail.value.email);
-                            _this.uploadNote();
                         } else {
                             util.showBusy("网络繁忙，请重试");
                         }
