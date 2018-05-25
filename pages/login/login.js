@@ -39,6 +39,7 @@ Page({
                                 let openid = res.data.openid;
                                 wx.setStorageSync('session_id', session_id);
                                 wx.setStorageSync('openid', openid);
+                                console.log(openid);
                                 util.showSuccess("登录成功");
                                 _this.uploadNote();
                             },
@@ -117,7 +118,7 @@ Page({
          if("undefined" != typeof e.detail.value.none)
          {
             wx.request({
-                url: 'https://node.gongbarry.xyz/denglu',
+                url: 'http://node.xukai.ink/denglu',
                 header: {
                     'Content-type': 'application/x-www-form-urlencoded'
                 },
@@ -166,7 +167,7 @@ Page({
              else
              {
                 wx.request({
-                    url: 'https://node.gongbarry.xyz/sign_email',
+                    url: 'http://node.xukai.ink/sign_email',
                     header: {
                         'Content-type': 'application/x-www-form-urlencoded'
                     },
