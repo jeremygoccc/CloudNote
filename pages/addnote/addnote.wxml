@@ -18,7 +18,7 @@
         <image wx:if="{{frame==2}}" class="sound-style" src="../../img/voice_icon_speech_sound_2.png" ></image>
         <image wx:if="{{frame==3}}" class="sound-style" src="../../img/voice_icon_speech_sound_3.png" ></image>
         <image wx:if="{{frame==4}}" class="sound-style" src="../../img/voice_icon_speech_sound_4.png" ></image>
-        <image wx:if="{{frame==5}}"class="sound-style" src="../../img/voice_icon_speech_sound_5.png" ></image>
+        <image wx:if="{{frame==5}}" class="sound-style" src="../../img/voice_icon_speech_sound_5.png" ></image>
     </view>
     <view wx:if="{{item.voiceFlag}}" class="voice-url" bindtouchstart="voicePlay" bindtouchend="voiceEnd" data-voice="{{item.savedFilePath}}">
         <view class="voice-img">

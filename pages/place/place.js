@@ -79,8 +79,7 @@ Page({
             }
           ]
         })
-        console.log(res.longitude);
-        console.log(res.latitude);
+        console.log(res);
       }
     })
   },

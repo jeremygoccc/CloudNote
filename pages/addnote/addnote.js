@@ -40,7 +40,8 @@ Page({
         },
         now: util.formatTime(new Date(Number(Date.now()))),
         showMenu: false,
-        showTime: false
+        showTime: false,
+        unloadFlag: false
     },
     onLoad: function(e) {
         id = e.id;
@@ -48,7 +49,8 @@ Page({
         if(id) { // id存在则为修改记事本
             typeof this.getData == "function" && this.getData(id, this);
             _this.setData({
-                saveFlag: true
+                saveFlag: true,
+                unloadFlag: true
             });
         } else { // id不存在则为新增记事本
             var item = this.data.item;
@@ -124,10 +126,40 @@ Page({
     },
     onUnload: function() {
         console.log("onUnload");
-        this.save();
+        console.log("unloadFlag: ");
+        console.log(this.data.unloadFlag);
+        // if (!this.data.unloadFlag) return;
         wx.redirectTo({
             url: '../index/index'
         });
+    },
+    getData: function(id, page) {
+        const _this = this;
+        this.setData({
+            saveFlag: true
+        });
+        var arr = wx.getStorageSync("txt");
+        arr.forEach(function(item) {
+            if(!arr.length) return;
+            if(item.id == id) {
+                console.log(item);
+                _this.setData({
+                    item: item
+                })
+            }
+        });
+        console.log("getdata: ");
+        console.log(this.data.item.place);
+        if (_this.data.item.duration) {
+            _this.setData({
+                voiceFlag: true
+            });
+        }
+        if (_this.data.item.alarmTime) {
+            _this.setData({
+                showTime: true
+            });
+        }
     },
     getNliFromRes: function(res_data) {
         var res_data_json = JSON.parse(res_data);
@@ -146,10 +178,12 @@ Page({
         this.setData({
             item: item
         })
+        this.save();
     },
     save: function() {
         // 判断内容是否为空或者为空格
-        console.log("save");
+        console.log("before save");
+        console.log(this.data.item.place);
         var re = /^\s*$/g;
         var content = this.data.item.content;
         if(!content || re.test(content)) return;
@@ -160,34 +194,9 @@ Page({
             item: item
         })
         typeof this.saveContent == "function" && this.saveContent(this);
-        wx.redirectTo({
-            url: "../index/index"
-        })
-    },
-    getData: function(id, page) {
-        this.setData({
-            saveFlag: true
-        });
-        var arr = wx.getStorageSync("txt");
-        arr.forEach(function(item) {
-            if(!arr.length) return;
-            if(item.id == id) {
-                console.log(item);
-                page.setData({
-                    item: item
-                })
-            }
-        });
-        if (page.data.item.duration) {
-            page.setData({
-                voiceFlag: true
-            });
-        }
-        if (page.data.item.alarmTime) {
-            page.setData({
-                showTime: true
-            });
-        }
+        // wx.redirectTo({
+        //     url: "../index/index"
+        // })
     },
     saveContent: function(page) {
         const _this = this;
@@ -198,7 +207,7 @@ Page({
             arr.forEach(function(item) {
                 console.log(item);
                 console.log(_this.data.item);
-                if(item.id == page.data.item.id) {
+                if(item.id == _this.data.item.id) {
                     item = _this.data.item;
                     item.time = Date.now();
                     editFlag = true;
@@ -313,6 +322,8 @@ Page({
         }
     },
     canTime: function(context, id) {
+        var item = this.data.item;
+        item.alarmTime = '';
         var arr = wx.getStorageSync("txt");
         if(arr.length) {
             arr.forEach(function(item) {
@@ -355,6 +366,8 @@ Page({
         }
     },
     canPlace: function(context, id) {
+        var item = this.data.item;
+        item.place = '';
         var arr = wx.getStorageSync("txt");
         if(arr.length) {
             arr.forEach(function(item) {
@@ -387,5 +400,6 @@ Page({
         console.log(arr);
         clearInterval(util.setInter);
         util.setInter(1000);
+        this.save();
     }
 })

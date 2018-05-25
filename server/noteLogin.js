@@ -25,7 +25,7 @@ var app = express();
 var port = 3301;
 
 const app_id = "wx58cb9a0e27c46700";
-const app_secret = "2b52bcc2123571a5b8e4078126abd628";
+const app_secret = "1fffbb71ee6b0a7bb9d5a82d2f50d0e8";
 
 redis.on('error', err => { console.log('error event - ' + redis.host + ':' + redis.port + ' - ' + err); });
 
@@ -39,6 +39,7 @@ redis.on('error', err => { console.log('error event - ' + redis.host + ':' + red
 app.use(bodyParser.urlencoded({ limit:'50mb', extended: true }));
 
 app.get('/', function(req, res, next) {
+    console.log("entering");
     let code = req.query.code;
     request.get({
         url: 'https://api.weixin.qq.com/sns/jscode2session',
@@ -51,6 +52,7 @@ app.get('/', function(req, res, next) {
         }
     }, (err, response, data) => {
         if (response.statusCode === 200) {
+            console.log(data);
             console.log('[openid]: ', data.openid);
             console.log('[session_key]: ', data.session_key);
             var openid = data.openid;
