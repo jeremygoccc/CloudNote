@@ -5,10 +5,10 @@ var rediz = require('redis');
 var Q = require('bluebird');
 
 var mysql = require('mysql').createConnection({
-    host: '112.74.43.247',
+    host: '119.29.183.36',
     port: '3306',
-    user: 'hjk',
-    password: '456456',
+    user: 'root',
+    password: '',
     database: 'node',
     useConnectionPooling: true
 });
@@ -25,7 +25,7 @@ var app = express();
 var port = 3301;
 
 const app_id = "wx58cb9a0e27c46700";
-const app_secret = "1fffbb71ee6b0a7bb9d5a82d2f50d0e8";
+const app_secret = "3844724baabb8e0f454703cdc5e96353";
 
 redis.on('error', err => { console.log('error event - ' + redis.host + ':' + redis.port + ' - ' + err); });
 

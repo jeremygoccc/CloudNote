@@ -65,6 +65,14 @@
     flex-direction: column;
     justify-content: space-between;
 }
+.list-i .info-desc text:last-child {
+    font-size: 26rpx;
+    font-family: sans-serif;
+    color: #666;
+    position: absolute;
+    right: 35rpx;
+    bottom: 20rpx;
+}
 .list-i .content {
     margin-top: 20rpx;
     font-size: 26rpx;
@@ -108,9 +116,10 @@
     background-color: red;
 }
 .list-page .img {
-    position: absolute;
+    position: fixed;
     bottom: 50rpx;
     right: 50rpx;
+    z-index: 999;
 }
 .list-page .img image {
     width: 10vw;

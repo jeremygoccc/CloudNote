@@ -89,6 +89,8 @@ Page({
     }
   },
   timeHandler: function(item) {
+    console.log(item.time)
+    if (item.time.toString().indexOf('/') !== -1) return
     var t = new Date(Number(item.time));
     var now = new Date(Number(Date.now()));
     if (now.getDate() - t.getDate() === 0) {

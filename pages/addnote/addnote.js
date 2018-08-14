@@ -32,6 +32,7 @@ Page({
             frame: 1,
             place: '',
             alarmTime: '',
+            classifies: [],
             pin: 0,
             savedFilePath: '',
             duration: 0,
@@ -41,6 +42,15 @@ Page({
         now: util.formatTime(new Date(Number(Date.now()))),
         showMenu: false,
         showTime: false,
+        showClass: false,
+        classifies: [
+            '未分类',
+            '操作系统',
+            '数据结构',
+            '组成原理'
+        ],
+        classIndex: 0,
+        currentClass: '未分类',
         unloadFlag: false
     },
     onLoad: function(e) {
@@ -160,6 +170,12 @@ Page({
                 showTime: true
             });
         }
+        if (_this.data.item.classifies) {
+            _this.setData({
+                showClass: true,
+                currentClass: _this.data.item.classifies
+            })
+        }
     },
     getNliFromRes: function(res_data) {
         var res_data_json = JSON.parse(res_data);
@@ -179,7 +195,7 @@ Page({
             item: item
         })
         this.save();
-    },
+    },  
     save: function() {
         // 判断内容是否为空或者为空格
         console.log("before save");
@@ -283,10 +299,10 @@ Page({
             path: '',
             imageUrl: '',
             success: function(res) {
-
+                console.log('分享成功')
             },
             fail: function(res) {
-
+                console.log('分享失败，请重试')
             }
         }
     },
@@ -294,6 +310,12 @@ Page({
         this.setData({
             showMenu: !this.data.showMenu
         });
+    },
+    showClass: function () {
+        this.setData({
+            showClass: !this.data.showClass
+        })
+        console.log(this.data.showClass)
     },
     showTime: function() {
         if (!this.data.saveFlag) {
@@ -401,5 +423,31 @@ Page({
         clearInterval(util.setInter);
         util.setInter(1000);
         this.save();
+    },
+    bindClassChange: function (e) {
+        const _this = this
+        this.setData({
+            currentClass: this.data.classifies[e.detail.value]
+        })
+        let arr = wx.getStorageSync("txt")
+        if (arr.length) {
+            arr.forEach(function (item) {
+                if (item.id === _this.data.item.id) {
+                    // if (item.classifies && item.classifies.length > 0) {
+                    //     _this.data.item.classifies = item.classifies.push(_this.data.currentClass)
+                    //     item.classifies = _this.data.item.classifies
+                    // } else {
+                    //     _this.data.item.classifies = []
+                    //     _this.data.item.classifies.push(_this.data.currentClass)
+                    //     item.classsifies = _this.data.item.classifies
+                    // }
+                    _this.data.item.classifies = _this.data.currentClass
+                    item.classifies = _this.data.item.classifies
+                }
+            })
+        }
+        wx.setStorageSync("txt", arr)
+        console.log(arr)
+        this.save()
     }
 })

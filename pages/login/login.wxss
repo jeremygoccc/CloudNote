@@ -55,7 +55,17 @@ page {
     background-color: #13ac87;
     color: #fff;
     font-size: 30rpx;
-    margin-bottom: 75rpx;
+    margin-bottom: 35rpx;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+.login-box .btn .wechat {
+    width: 80vw;
+    height: 7vh;
+    line-height: 7vh;
+    border-radius: 10rpx;
+    background-color: lightblue;
+    color: #fff;
+    font-size: 25rpx;
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 .login-box .hits {
