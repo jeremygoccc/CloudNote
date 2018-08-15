@@ -8,7 +8,9 @@
             <!-- <image src="../../img/plus.png" class="edit" bindtap="add" /> -->
         </view>
     </view>
-    <input type="text" class="search" placeholder="搜索…" bindinput="noteSearch" />
+    <view>
+        <input type="text" class="search" placeholder="搜索…" bindinput="noteSearch" />
+    </view>
     <scroll-view scroll-y class="list-box">
       <view class="item-list" wx:for="{{mylists}}" wx:for-index="index" wx:key="id">
            <view class="list-i {{item.pin == 1 ? 'list-i-pin' : ''}}" bindtap="edit" bindlongpress="press" data-index="{{index}}" data-id="{{item.id}}" bindtouchstart="touchS" bindtouchmove="touchM" bindtouchend="touchE" style="{{item.txtStyle}}">
@@ -16,7 +18,7 @@
                     <view class="info-desc">
                         <text class="time">{{item.time}}</text>
                         <text class="content">{{item.indexCon}}</text>
-                        <text>{{item.classifies === '未分类' ?  '' : item.classifies}}</text>
+                        <text style="font-weight: bolder">{{item.classifies === '未分类' ?  '' : item.classifies}}</text>
                     </view>
                 </view>
             </view>

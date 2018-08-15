@@ -316,7 +316,7 @@ Page({
     },
     showClass: function () {
         this.setData({
-            showClass: !this.data.showClass
+            showClass: true
         })
         console.log(this.data.showClass)
     },

@@ -310,8 +310,14 @@ Page({
     if (!content) _this.initData(_this);
     var txt = wx.getStorageSync("txt");
     var data = [];
+    txt.forEach(function (item) {
+        if (item.classifies.indexOf(content) !== -1) {
+            item = _this.timeHandler(item)
+            data.push(item)
+        }
+    })
     txt.forEach(function(item) {
-        if (item.content.indexOf(content) !== -1) {
+        if (!data.includes(item) && item.content.indexOf(content) !== -1) { // 先搜索分类再搜索内容
             item = _this.timeHandler(item);
             data.push(item);
         }
