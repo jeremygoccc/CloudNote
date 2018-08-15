@@ -89,7 +89,7 @@ Page({
     }
   },
   timeHandler: function(item) {
-    console.log(item.time)
+    // console.log(item.time)
     if (item.time.toString().indexOf('/') !== -1) return
     var t = new Date(Number(item.time));
     var now = new Date(Number(Date.now()));
@@ -100,7 +100,7 @@ Page({
         item.time = [t.getMonth()+1, t.getDate()].map(util.formatNumber).join('/') + ' ' + [t.getHours(), t.getMinutes()].map(util.formatNumber).join(':');
     }
     item.indexCon = item.content.length > 20 ? item.content.slice(0, 20)+'…' : item.content;
-    console.log(item.time);
+    // console.log(item.time);
     return item;
   },
   press: function(e) {
@@ -307,11 +307,15 @@ Page({
     console.log(e);
     const _this = this;
     const content = e.detail.value;
-    if (!content) _this.initData(_this);
+    if (!content) {
+        _this.initData(_this)
+        return
+    }
     var txt = wx.getStorageSync("txt");
     var data = [];
+    console.log('search')
     txt.forEach(function (item) {
-        if (item.classifies.indexOf(content) !== -1) {
+        if (item.classifies && item.classifies.indexOf(content) !== -1) {
             item = _this.timeHandler(item)
             data.push(item)
         }
