@@ -30,7 +30,7 @@
     </view>
     <view class="place" wx:if="{{item.place}}">{{item.place.title}}</view>
     <view class="menu fade" wx:if="{{showMenu}}">
-        <view bindtap="{{!item.classify ? 'showClass' : 'cancelClass'}}">{{item.classify ? '改变分类' : '设定分类'}}</view>
+        <view bindtap="{{currentClass && currentClass !== '未分类' ? 'cancelClass' : 'showClass'}}">{{currentClass && currentClass !== '未分类' ? '取消分类' : '新增分类'}}</view>
         <view bindtap="{{!item.alarmTime ? 'showTime' : 'cancelTime'}}">{{item.alarmTime ? '取消闹钟' : '设定闹钟'}}</view>
         <view bindtap="{{!item.place ? 'showPlace': 'cancelPlace'}}">{{item.place ? '取消地点' : '设定地点'}}</view>
     </view>
@@ -40,10 +40,9 @@
                 分类： {{currentClass}}
             </view>
         </picker>
-        <view wx:if="classInput">
-            <input type="text" name="other" placeholder="请输入分类" />
-        </view>
     </view>
+    <class-modal modal-show="{{modalShow}}" height="60%" bindcancel="modalCancel" bindconfirm="modalConfirm">
+    </class-modal>
     <view class="btn-box">
         <button class="all" bindtap="showMenu">
             <image src="../../img/all.png"></image>

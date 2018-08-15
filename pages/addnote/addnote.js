@@ -47,13 +47,16 @@ Page({
             '未分类',
             '操作系统',
             '数据结构',
-            '组成原理'
+            '组成原理',
+            '自定义'
         ],
         classIndex: 0,
         currentClass: '未分类',
+        modalShow: false,
         unloadFlag: false
     },
     onLoad: function(e) {
+        this.classifiesInit();
         id = e.id;
         const _this = this;
         if(id) { // id存在则为修改记事本
@@ -170,7 +173,7 @@ Page({
                 showTime: true
             });
         }
-        if (_this.data.item.classifies) {
+        if (_this.data.item.classifies && _this.data.item.classifies !== '未分类') {
             _this.setData({
                 showClass: true,
                 currentClass: _this.data.item.classifies
@@ -317,6 +320,20 @@ Page({
         })
         console.log(this.data.showClass)
     },
+    cancelClass: function () {
+        const _this = this
+        let arr = wx.getStorageSync("txt")
+        arr.some(function (item) {
+            if (item.id === _this.data.item.id) {
+                item.classifies = '未分类'
+            }
+            return true
+        })
+        wx.setStorageSync("txt", arr)
+        this.setData({
+            showClass: false
+        })
+    },
     showTime: function() {
         if (!this.data.saveFlag) {
             util.showBusy("请先保存当前笔记");
@@ -425,10 +442,19 @@ Page({
         this.save();
     },
     bindClassChange: function (e) {
-        const _this = this
+        if (this.data.classifies[e.detail.value] === '自定义') {
+            this.setData({
+                modalShow: true
+            })
+            return
+        }
         this.setData({
             currentClass: this.data.classifies[e.detail.value]
         })
+        this.classSave()
+    },
+    classSave: function () {
+        const _this = this
         let arr = wx.getStorageSync("txt")
         if (arr.length) {
             arr.forEach(function (item) {
@@ -449,5 +475,102 @@ Page({
         wx.setStorageSync("txt", arr)
         console.log(arr)
         this.save()
+    },
+    modalConfirm: function () {
+        let index = wx.getStorageSync("classActiveIndex")
+        let newClass = wx.getStorageSync("classActiveName")
+        let classIndex = wx.getStorageSync("classIndex")
+        let classifies = wx.getStorageSync("classifies")
+        switch (index) {
+            case 0:
+                this.addClass(classifies, newClass);
+                break;
+            case "1":
+                this.modifyClass(classifies, classIndex, newClass);
+                break;
+            case "2":
+                this.deleteClass(classifies, classIndex);
+                break;
+        }
+        this.setData({
+            modalShow: false
+        })
+        console.log('confirm complete')
+        wx.setStorageSync("classActiveIndex", 0)
+        wx.setStorageSync("classIndex", 0)
+        this.classifiesInit()
+        // console.log(id)
+        // wx.redirectTo({
+        //     url: "../addnote/addnote?id="+id
+        // });
+    },
+    addClass: function (classifies, newClass) {
+        console.log('新增分类')
+        if (!classifies.includes(newClass)) {
+            classifies.push(newClass)
+        } else {
+            util.showBusy('该分类已存在');
+            return
+        }
+        wx.setStorageSync("classifies", classifies)
+        console.log(classifies)
+        this.setData({
+            currentClass: newClass
+        })
+        this.classSave()
+    },
+    modifyClass: function (classifies, classIndex, newClass) {
+        console.log('修改分类')
+        let oldClass = classifies[classIndex]
+        classifies[classIndex] = newClass
+        wx.setStorageSync("classifies", classifies)
+        if (oldClass === this.data.currentClass) {
+            this.setData({
+                currentClass: newClass
+            })
+        }
+        let arr = wx.getStorageSync("txt")
+        arr.forEach(function (item) {
+            if (item.classifies === oldClass) {
+                item.classifies = newClass
+            }
+        })
+        wx.setStorageSync("txt", arr)
+        this.classSave()
+    },
+    deleteClass: function (classifies, classIndex) {
+        console.log('删除分类')
+        let oldClass = classifies[classIndex]
+        wx.setStorageSync("classifies", classifies.slice(classIndex, classIndex + 1))
+        if (oldClass === this.data.currentClass) {
+            this.setData({
+                currentClass: '未分类'
+            })
+        }
+        let arr = wx.getStorageSync("txt")
+        arr.forEach(function (item) {
+            if (item.classifies === oldClass) {
+                item.classifies = '未分类'
+            }
+        })
+        wx.setStorageSync("txt", arr)
+        this.classSave()
+    },
+    classifiesInit: function () {
+        let classifies = wx.getStorageSync('classifies')
+        console.log(classifies)
+        if (classifies) {
+            classifies.unshift('未分类')
+            classifies.push('自定义')
+            this.setData({
+                classifies: classifies
+            })
+        } else {
+            classifies = this.data.classifies
+            classifies.pop()
+            classifies.shift()
+            wx.setStorageSync("classifies", classifies)
+            console.log(wx.getStorageSync("classifies"))
+        }
     }
 })

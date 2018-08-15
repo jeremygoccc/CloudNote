@@ -125,7 +125,7 @@ Page({
          if("undefined" != typeof e.detail.value.none)
          {
             wx.request({
-                url: 'http://lsgs.xukai.ink/denglu',
+                url: 'http://39.106.158.118/xk/tp5/public/denglu',
                 header: {
                     'Content-type': 'application/x-www-form-urlencoded'
                 },
@@ -174,7 +174,7 @@ Page({
              else
              {
                 wx.request({
-                    url: 'http://lsgs.xukai.ink/sign_email',
+                    url: 'http://39.106.158.118/xk/tp5/public/sign_email',
                     header: {
                         'Content-type': 'application/x-www-form-urlencoded'
                     },

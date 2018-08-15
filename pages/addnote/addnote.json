@@ -1,0 +1,5 @@
+{
+    "usingComponents": {
+        "class-modal": "/pages/components/modal/modal"
+    }
+}
