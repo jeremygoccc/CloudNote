@@ -59,30 +59,6 @@ Page({
           }
         })
   },
-  getLngLat: function () {
-    var that = this;
-    this.mapCtx = wx.createMapContext("myMap");
-    this.mapCtx.getCenterLocation({
-      success: function (res) {
-        that.setData({
-          longitude: res.longitude,
-          latitude: res.latitude,
-          markers:
-          [
-            {
-              id: 0
-              , iconPath: "../../img/bposition.png"
-              , longitude: res.longitude
-              , latitude: res.latitude
-              , width: 30
-              , height: 30
-            }
-          ]
-        })
-        console.log(res);
-      }
-    })
-  },
   place: function() {
     var that = this;
     this.mapCtx = wx.createMapContext("myMap");
@@ -98,13 +74,8 @@ Page({
         })
       }
     })
-  },
-  regionchange: function(e) {
-    // 地图发生变化的时候，获取中间点，也就是用户选择的位置
-    if (e.type == 'end') {
-      this.getLngLat()
-    }
-  },
+  }
+  ,
   placeSearch: function(e) {
     var _this = this;
     console.log(e.detail.value);
@@ -126,10 +97,10 @@ Page({
   },
   bindChange: function(e) {
     var that = this;
-    console.log(this.data.placeItems[e.detail.value]);
-    var latitude = this.data.placeItems[e.detail.value].location.lat;
-    var longitude = this.data.placeItems[e.detail.value].location.lng;
-    place = this.data.placeItems[e.detail.value];
+    console.log(that.data.placeItems[e.detail.value]);
+    var latitude = that.data.placeItems[e.detail.value].location.lat;
+    var longitude = that.data.placeItems[e.detail.value].location.lng;
+    place = that.data.placeItems[e.detail.value];
     that.setData({
             longitude: longitude,
             latitude: latitude,
@@ -146,8 +117,10 @@ Page({
             ]
           })
   },
-  confirmPlace: function() {
+  confirmPlace: function(e) {
     console.log("noteId: " + noteId);
+    // console.log(e);
+    var fid = e.detail.formId;
     if(this.data.placeItems.length == 0) {
       util.showBusy("请输入地点");
       return;
@@ -155,12 +128,16 @@ Page({
     var arr = wx.getStorageSync("txt");
     if(arr.length) {
         arr.forEach(function(item) {
+          console.log(item)
             if(item.id == noteId) {
                 item.place = place
             }
         })
+        console.log('存储地理信息！')
     }
-    wx.setStorageSync("txt", arr);
+    arr['formid'] = fid;
+    console.log(arr);
+    util.didianmoban(arr);
     wx.redirectTo({
         url: "../addnote/addnote?id="+noteId
     });

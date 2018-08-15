@@ -1,3 +1,4 @@
+var app = getApp();
 const Promise = require('es6-promise.min.js');
 const QQMapWX = require('qqmap-wx-jssdk.js');
 const demo = new QQMapWX({
@@ -96,4 +97,98 @@ const padAlarm = time => {
     return [year, month, day].map(formatNumber).join('/') + ' ' + time;
 }
 
-module.exports = { formatTime, formatNumber, showBusy, showSuccess, showModel, showTips, getUnique, wxPromisify, demo, setInter }
+function didianmoban(res){
+    console.log(res);
+    var placee = res;
+    var openid = wx.getStorageSync("openid");
+    console.log("openid:",openid)
+    var appid='wx58cb9a0e27c46700'
+    var secret= '8d10acb158de66de6531b0abcddae126'
+    var dd='https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid='+appid+'&secret='+secret; 
+    var access_token; 
+    wx.request({  
+      url: dd,  
+      data: {},  
+      method: 'GET', // OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, CONNECT  
+      // header: {}, // 设置请求的 header  
+      success: function(res){  
+        access_token=res.data.access_token;
+        console.log("access_taken:",access_token)
+        var template_id='FT-OtZQaJjZrAY0VtJm-19em3K_wlt9KB84sePM0rE0';
+        var formid = placee.formid;
+        var l = "https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send?access_token="+access_token;
+        var title = placee[0].place.title;
+        var content = placee[0].content;
+        var times = placee[0].time;
+        var time = formatTime(new Date(times));
+        var address = placee[0].place.address;
+         demo.geocoder({
+              address: address,
+              success: function(res) {
+                  var lat = res.result.location.lat;
+                  var lng = res.result.location.lng;
+                  demo.calculateDistance({
+                        to:[{
+                            latitude: lat,
+                            longitude: lng
+                        }],
+                        success: function(res) {
+                            var distance = res.result.elements[0].distance;
+                            console.log(distance);
+                            console.log(res);
+                            if (distance<3000) {
+                                  var d = {  
+                                        touser: openid,  
+                                        template_id: template_id,//这个是1、申请的模板消息id，  
+                                        page: '/pages/index/index',  
+                                        form_id: formid,  
+                                        data: {//测试完发现竟然value或者data都能成功收到模板消息发送成功通知，是bug还是故意？？【鄙视、鄙视、鄙视...】 下面的keyword*是你1、设置的模板消息的关键词变量  
+                                    
+                                          "keyword1": {  
+                                            "value": content  
+                                          },  
+                                          "keyword2": {  
+                                            "value": time
+                                          },  
+                                          "keyword3": {  
+                                            "value": title
+                                          }
+                                          
+                                        },  
+                                        // color: '#ccc',  
+                                        emphasis_keyword: 'keyword1.DATA'  
+                                      }  
+                                      wx.request({  
+                                        url: l,  
+                                        data: d,  
+                                        method: 'POST',  
+                                        success: function(res){  
+                                          console.log("push msg");  
+                                          console.log(res);  
+                                        },  
+                                        fail: function(err) {  
+                                          console.log("push err")  
+                                          console.log(err);  
+                                        }  
+                                      });
+                                       // console.log(title);
+                                      // console.log(content);
+                             }
+                          },
+                        fail: function(res) {
+                            console.log("距离计算失败");
+                        }
+                    });
+              },
+              fail: function(res) {
+                  console.log("解析位置经纬度出错");
+              },
+              complete: function(res) {
+                  console.log(res);
+              }
+            });
+      }  
+    });
+}
+
+module.exports = { formatTime, formatNumber, showBusy, showSuccess, showModel, showTips, getUnique, wxPromisify, demo, setInter,didianmoban}
