@@ -281,6 +281,7 @@ Page({
         var voicePath = e.target.dataset.voice;
         console.log(voicePath);
         innerAudioContext.src = voicePath;
+        innerAudioContext.volume = 1;
         innerAudioContext.play();
         innerAudioContext.onError((res) => {
             console.log(res);
@@ -316,7 +317,7 @@ Page({
     },
     showClass: function () {
         this.setData({
-            showClass: !this.data.showClass
+            showClass: true
         })
         console.log(this.data.showClass)
     },
