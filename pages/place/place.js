@@ -101,21 +101,22 @@ Page({
     var latitude = that.data.placeItems[e.detail.value].location.lat;
     var longitude = that.data.placeItems[e.detail.value].location.lng;
     place = that.data.placeItems[e.detail.value];
+    console.log(place)
     that.setData({
-            longitude: longitude,
-            latitude: latitude,
-            markers: [
-              {
-                id: 0,
-                // title: '移动红点到你想要接受提醒的位置',
-                iconPath: "../../img/bposition.png",
-                longitude: longitude,
-                latitude: latitude,
-                width: 30,
-                height: 30
-              }
-            ]
-          })
+      longitude: longitude,
+      latitude: latitude,
+      markers: [
+        {
+          id: 0,
+          // title: '移动红点到你想要接受提醒的位置',
+          iconPath: "../../img/bposition.png",
+          longitude: longitude,
+          latitude: latitude,
+          width: 30,
+          height: 30
+        }
+      ]
+    })
   },
   confirmPlace: function(e) {
     console.log("noteId: " + noteId);
@@ -128,7 +129,6 @@ Page({
     var arr = wx.getStorageSync("txt");
     if(arr.length) {
         arr.forEach(function(item) {
-          console.log(item)
             if(item.id == noteId) {
                 item.place = place
             }
@@ -136,8 +136,8 @@ Page({
         console.log('存储地理信息！')
     }
     arr['formid'] = fid;
-    console.log(arr);
     util.didianmoban(arr);
+    wx.setStorageSync("txt", arr)
     wx.redirectTo({
         url: "../addnote/addnote?id="+noteId
     });

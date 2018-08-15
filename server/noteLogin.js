@@ -25,7 +25,7 @@ var app = express();
 var port = 3301;
 
 const app_id = "wx58cb9a0e27c46700";
-const app_secret = "3844724baabb8e0f454703cdc5e96353";
+const app_secret = "8d10acb158de66de6531b0abcddae126";
 
 redis.on('error', err => { console.log('error event - ' + redis.host + ':' + redis.port + ' - ' + err); });
 
