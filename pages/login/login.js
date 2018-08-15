@@ -5,7 +5,8 @@ const getUserInfoPromised = util.wxPromisify(wx.getUserInfo);
 
 Page({
     data: {
-        signFlag: 'Sign In'
+        signFlag: 'Sign In',
+        userInfo: ''
     },
     signClick: function(e) {
       this.setData({
@@ -15,43 +16,49 @@ Page({
     forgetPass: function() {
         console.log("forget");
     },
+    onGotUserInfo: function (e) {
+        console.log(e.detail)
+        this.setData({
+            userInfo: e.detail.userInfo
+        })
+    },
     loginWechat: function() {
         console.log("loginWechat");
         const _this = this;
-        getUserInfoPromised({
-        }).then(function(res) {
-            wx.setStorageSync("userInfo", res.userInfo);
-            console.log(res);
-            wx.login({
-                success: function(res) {
-                    var code = res.code;
-                    if (code) {
-                        console.log("获取用户登录凭证: " + code);
-                        wx.request({
-                            url: LOGIN_URL,
-                            data: {
-                                code: code
-                            },
-                            success: function(res) {
-                                console.log(res.data);
-                                // let data = JSON.parse(res.data);
-                                let session_id = res.data.session_id;
-                                let openid = res.data.openid;
-                                wx.setStorageSync('session_id', session_id);
-                                wx.setStorageSync('openid', openid);
-                                console.log(openid);
-                                util.showSuccess("登录成功");
-                                _this.uploadNote();
-                            },
-                            fail: function(res) {
-                                console.log(res);
+        wx.login({
+            success: function(res) {
+                var code = res.code;
+                if (code) {
+                    console.log("获取用户登录凭证: " + code);
+                    wx.request({
+                        url: LOGIN_URL,
+                        data: {
+                            code: code
+                        },
+                        success: function(res) {
+                            console.log(res.data);
+                            // let data = JSON.parse(res.data);
+                            let session_id = res.data.session_id;
+                            let openid = res.data.openid;
+                            if (!session_id || !openid) {
+                                util.showBusy('登录失败');
+                                return;
                             }
-                        });
-                    } else {
-                        console.log("获取用户登录凭证失败： " + res.errMsg);
-                    }
+                            wx.setStorageSync("userInfo", _this.userInfo);
+                            wx.setStorageSync('session_id', session_id);
+                            wx.setStorageSync('openid', openid);
+                            console.log(openid);
+                            util.showSuccess("登录成功");
+                            _this.uploadNote();
+                        },
+                        fail: function(res) {
+                            console.log(res);
+                        }
+                    });
+                } else {
+                    console.log("获取用户登录凭证失败： " + res.errMsg);
                 }
-            });
+            }
         });
     },
     uploadNote: function() {
@@ -118,7 +125,7 @@ Page({
          if("undefined" != typeof e.detail.value.none)
          {
             wx.request({
-                url: 'http://node.xukai.ink/denglu',
+                url: 'http://lsgs.xukai.ink/denglu',
                 header: {
                     'Content-type': 'application/x-www-form-urlencoded'
                 },
@@ -135,7 +142,7 @@ Page({
                         wx.setStorageSync('email', e.detail.value.email);
                         _this.uploadNote();
                     } else {
-                        util.showBusy("网络繁忙，请重试");
+                        util.showBusy(res.data.data);
                     }
                 },
                 fail: function(){
@@ -167,7 +174,7 @@ Page({
              else
              {
                 wx.request({
-                    url: 'http://node.xukai.ink/sign_email',
+                    url: 'http://lsgs.xukai.ink/sign_email',
                     header: {
                         'Content-type': 'application/x-www-form-urlencoded'
                     },
@@ -182,7 +189,7 @@ Page({
                         if (res.data.status === 1) {
                             util.showSuccess("注册成功");
                         } else {
-                            util.showBusy("网络繁忙，请重试");
+                            util.showBusy(res.data.data);
                         }
                     },
                     fail: function(){

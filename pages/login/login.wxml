@@ -11,12 +11,12 @@
                 <input style="display:{{signFlag=='Sign In'?'none':''}}" name="{{signFlag=='Sign In'?'none':'repassword'}}" type="password" placeholder="密码"  hover-class="hover-press" />
             </view>
             <view class="btn">
-                <button class="sign" formType="submit" hover-class="hover-press">{{signFlag}}</button>
+                <button class="sign" formType="submit" hover-class="hover-press" open-type="getUserInfo">{{signFlag}}</button>
+                <button class="wechat" bindtap="loginWechat" hover-class="hover-press" open-type="getUserInfo" bindgetuserinfo="onGotUserInfo">微信登录</button>
             </view>
         </form>
-        <view class="hits" style="justify-content:{{signFlag=='Sign In'?'space-between':'center'}}">
-            <view class="wechat" bindtap="loginWechat" hover-class="hover-press">微信登录</view>
+<!--         <view class="hits" style="justify-content:{{signFlag=='Sign In'?'space-between':'center'}}">
             <view class="forget" hidden="{{signFlag=='Sign Up'?true:false}}" bindtap="forgetPass" hover-class="hover-press">忘记密码</view>
-        </view>
+        </view> -->
     </view>
 </view>

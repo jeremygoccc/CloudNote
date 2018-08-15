@@ -61,7 +61,7 @@
 }
 .menu {
     width: 33.33333%;
-    height: 15vh;
+    height: 22vh;
     display: flex;
     flex-direction: column;
     background-color: #E8E8E8;
@@ -144,4 +144,7 @@
     position: absolute;
     bottom: 270rpx;
     right: 50rpx;
+}
+.class .picker {
+    bottom: 350rpx;
 }
