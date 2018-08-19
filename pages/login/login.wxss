@@ -63,7 +63,7 @@ page {
     height: 7vh;
     line-height: 7vh;
     border-radius: 10rpx;
-    background-color: lightblue;
+    background-color: #35495E;
     color: #fff;
     font-size: 25rpx;
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;

@@ -25,7 +25,7 @@ var app = express();
 var port = 3301;
 
 const app_id = "wx58cb9a0e27c46700";
-const app_secret = "3844724baabb8e0f454703cdc5e96353";
+const app_secret = "8d10acb158de66de6531b0abcddae126";
 
 redis.on('error', err => { console.log('error event - ' + redis.host + ':' + redis.port + ' - ' + err); });
 
@@ -121,6 +121,23 @@ app.get('/getInfo', function(req, res, next) {
         });
     });
 });
+
+app.get('/getShare', function (req, res, next) {
+    var u_openid = req.query.openid
+    var id = req.query.id
+    var getShareSql = "SELECT * FROM n_note_info WHERE u_openid=? and id=?"
+    var getShareParams = [u_openid, id]
+    var resOb = res
+    mysql.query(getShareSql, getShareParams, function (err, res) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message)
+            return
+        }
+        resOb.json({
+            data: res
+        })
+    })
+})
 
 app.listen(port, () => {
     console.log("The server is running on port : " + port);

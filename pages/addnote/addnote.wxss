@@ -146,5 +146,6 @@
     right: 50rpx;
 }
 .class .picker {
+    width: auto;
     bottom: 350rpx;
 }

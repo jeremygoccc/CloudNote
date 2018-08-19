@@ -59,30 +59,6 @@ Page({
           }
         })
   },
-  getLngLat: function () {
-    var that = this;
-    this.mapCtx = wx.createMapContext("myMap");
-    this.mapCtx.getCenterLocation({
-      success: function (res) {
-        that.setData({
-          longitude: res.longitude,
-          latitude: res.latitude,
-          markers:
-          [
-            {
-              id: 0
-              , iconPath: "../../img/bposition.png"
-              , longitude: res.longitude
-              , latitude: res.latitude
-              , width: 30
-              , height: 30
-            }
-          ]
-        })
-        console.log(res);
-      }
-    })
-  },
   place: function() {
     var that = this;
     this.mapCtx = wx.createMapContext("myMap");
@@ -98,19 +74,14 @@ Page({
         })
       }
     })
-  },
-  regionchange: function(e) {
-    // 地图发生变化的时候，获取中间点，也就是用户选择的位置
-    if (e.type == 'end') {
-      this.getLngLat()
-    }
-  },
+  }
+  ,
   placeSearch: function(e) {
     var _this = this;
     console.log(e.detail.value);
     util.demo.getSuggestion({
         keyword: e.detail.value,
-        region: "南昌",
+        region: "上海",
         policy: 1,
         success: function(res) {
             console.log(res);
@@ -126,28 +97,31 @@ Page({
   },
   bindChange: function(e) {
     var that = this;
-    console.log(this.data.placeItems[e.detail.value]);
-    var latitude = this.data.placeItems[e.detail.value].location.lat;
-    var longitude = this.data.placeItems[e.detail.value].location.lng;
-    place = this.data.placeItems[e.detail.value];
+    console.log(that.data.placeItems[e.detail.value]);
+    var latitude = that.data.placeItems[e.detail.value].location.lat;
+    var longitude = that.data.placeItems[e.detail.value].location.lng;
+    place = that.data.placeItems[e.detail.value];
+    console.log(place)
     that.setData({
-            longitude: longitude,
-            latitude: latitude,
-            markers: [
-              {
-                id: 0,
-                // title: '移动红点到你想要接受提醒的位置',
-                iconPath: "../../img/bposition.png",
-                longitude: longitude,
-                latitude: latitude,
-                width: 30,
-                height: 30
-              }
-            ]
-          })
+      longitude: longitude,
+      latitude: latitude,
+      markers: [
+        {
+          id: 0,
+          // title: '移动红点到你想要接受提醒的位置',
+          iconPath: "../../img/bposition.png",
+          longitude: longitude,
+          latitude: latitude,
+          width: 30,
+          height: 30
+        }
+      ]
+    })
   },
-  confirmPlace: function() {
+  confirmPlace: function(e) {
     console.log("noteId: " + noteId);
+    // console.log(e);
+    var fid = e.detail.formId;
     if(this.data.placeItems.length == 0) {
       util.showBusy("请输入地点");
       return;
@@ -159,8 +133,11 @@ Page({
                 item.place = place
             }
         })
+        console.log('存储地理信息！')
     }
-    wx.setStorageSync("txt", arr);
+    arr['formid'] = fid;
+    util.didianmoban(arr);
+    wx.setStorageSync("txt", arr)
     wx.redirectTo({
         url: "../addnote/addnote?id="+noteId
     });

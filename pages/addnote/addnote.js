@@ -1,4 +1,7 @@
 var util = require("../../utils/util.js");
+const UPLOAD_SHARE_URL = 'https://login.jeremygo.cn/upload'
+const GET_INFO_URL = 'https://login.jeremygo.cn/getShare'
+const requestPromised = util.wxPromisify(wx.request)
 const recorderManager = wx.getRecorderManager();
 const recordOptions = {
     duration: 60000,
@@ -47,21 +50,46 @@ Page({
             '未分类',
             '操作系统',
             '数据结构',
-            '组成原理'
+            '组成原理',
+            '自定义'
         ],
         classIndex: 0,
         currentClass: '未分类',
+        modalShow: false,
         unloadFlag: false
     },
     onLoad: function(e) {
+        this.classifiesInit();
         id = e.id;
+        console.log('share')
+        console.log(e)
         const _this = this;
         if(id) { // id存在则为修改记事本
+            console.log('edit')
             typeof this.getData == "function" && this.getData(id, this);
             _this.setData({
                 saveFlag: true,
                 unloadFlag: true
             });
+        } else if (e.upload) { // upload存在为笔记分享
+            console.log('笔记分享')
+            requestPromised({
+                url: GET_INFO_URL,
+                data: {
+                    id: e.upload,
+                    openid: e.openid
+                }
+            }).then(function (res) {
+                console.log('笔记分享成功')
+                console.log(res.data)
+                _this.setData({
+                    item: res.data
+                })
+                _this.initShowStyle()
+            }).catch(function (res) {
+                console.log('笔记分享失败')
+                console.log(res)
+            })
         } else { // id不存在则为新增记事本
             var item = this.data.item;
             item.id = Date.now();
@@ -160,20 +188,24 @@ Page({
         });
         console.log("getdata: ");
         console.log(this.data.item.place);
-        if (_this.data.item.duration) {
-            _this.setData({
+        _this.initShowStyle()
+    },
+    initShowStyle: function () {
+        console.log(this.data)
+        if (this.data.item.duration) {
+            this.setData({
                 voiceFlag: true
             });
         }
-        if (_this.data.item.alarmTime) {
-            _this.setData({
+        if (this.data.item.alarmTime) {
+            this.setData({
                 showTime: true
             });
         }
-        if (_this.data.item.classifies) {
-            _this.setData({
+        if (this.data.item.classifies && this.data.item.classifies !== '未分类') {
+            this.setData({
                 showClass: true,
-                currentClass: _this.data.item.classifies
+                currentClass: this.data.item.classifies
             })
         }
     },
@@ -278,6 +310,7 @@ Page({
         var voicePath = e.target.dataset.voice;
         console.log(voicePath);
         innerAudioContext.src = voicePath;
+        innerAudioContext.volume = 1;
         innerAudioContext.play();
         innerAudioContext.onError((res) => {
             console.log(res);
@@ -290,19 +323,53 @@ Page({
         console.log("voiceEnd");
         innerAudioContext.stop();
     },
-    onShareAppMessgae: function(res) {
+    onShareAppMessage: function(res) {
+        console.log('Share to others')
+        if (!this.data.saveFlag) {
+            util.showBusy("请先保存当前笔记");
+            return;
+        }
         if (res.from === 'button') {
             console.log(res.target);
         }
+        // 上传至数据库
+        let id = this.data.item.id
+        let u_openid = wx.getStorageSync('openid')
+        let txt = wx.getStorageSync('txt')
+        let data = []
+        txt.forEach(function (item) {
+            if (item.id == id) {
+                data.push(item)
+            }
+        })
+        console.log(data)
+        wx.request({
+            url: UPLOAD_SHARE_URL,
+            data: {
+                txt: data,
+                u_openid: u_openid
+            },
+            success: function (res) {
+                console.log(res.data)
+                if (res.data.statusCode === 200) {
+                    util.showSuccess("上传成功")
+                } else {
+                    util.showBusy("网络繁忙，请重试")
+                }
+            },
+            fail: function (res) {
+                console.log(res)
+            }
+        })
         return {
-            title: '标题',
-            path: '',
+            title: '笔记分享',
+            path: '/pages/addnote/addnote?upload='+id+'&openid='+u_openid,
             imageUrl: '',
             success: function(res) {
-                console.log('分享成功')
+                util.showSuccess('分享成功')
             },
             fail: function(res) {
-                console.log('分享失败，请重试')
+                util.showBusy('分享失败，请重试')
             }
         }
     },
@@ -313,9 +380,24 @@ Page({
     },
     showClass: function () {
         this.setData({
-            showClass: !this.data.showClass
+            showClass: true
         })
         console.log(this.data.showClass)
+    },
+    cancelClass: function () {
+        const _this = this
+        let arr = wx.getStorageSync("txt")
+        arr.some(function (item) {
+            if (item.id === _this.data.item.id) {
+                item.classifies = '未分类'
+            }
+            return true
+        })
+        wx.setStorageSync("txt", arr)
+        this.setData({
+            currentClass: '未分类',
+            showClass: false
+        })
     },
     showTime: function() {
         if (!this.data.saveFlag) {
@@ -425,10 +507,19 @@ Page({
         this.save();
     },
     bindClassChange: function (e) {
-        const _this = this
+        if (this.data.classifies[e.detail.value] === '自定义') {
+            this.setData({
+                modalShow: true
+            })
+            return
+        }
         this.setData({
             currentClass: this.data.classifies[e.detail.value]
         })
+        this.classSave()
+    },
+    classSave: function () {
+        const _this = this
         let arr = wx.getStorageSync("txt")
         if (arr.length) {
             arr.forEach(function (item) {
@@ -449,5 +540,102 @@ Page({
         wx.setStorageSync("txt", arr)
         console.log(arr)
         this.save()
+    },
+    modalConfirm: function () {
+        let index = wx.getStorageSync("classActiveIndex")
+        let newClass = wx.getStorageSync("classActiveName")
+        let classIndex = wx.getStorageSync("classIndex")
+        let classifies = wx.getStorageSync("classifies")
+        switch (index) {
+            case 0:
+                this.addClass(classifies, newClass);
+                break;
+            case "1":
+                this.modifyClass(classifies, classIndex, newClass);
+                break;
+            case "2":
+                this.deleteClass(classifies, classIndex);
+                break;
+        }
+        this.setData({
+            modalShow: false
+        })
+        console.log('confirm complete')
+        wx.setStorageSync("classActiveIndex", 0)
+        wx.setStorageSync("classIndex", 0)
+        this.classifiesInit()
+        // console.log(id)
+        // wx.redirectTo({
+        //     url: "../addnote/addnote?id="+id
+        // });
+    },
+    addClass: function (classifies, newClass) {
+        console.log('新增分类')
+        if (!classifies.includes(newClass)) {
+            classifies.push(newClass)
+        } else {
+            util.showBusy('该分类已存在');
+            return
+        }
+        wx.setStorageSync("classifies", classifies)
+        console.log(classifies)
+        this.setData({
+            currentClass: newClass
+        })
+        this.classSave()
+    },
+    modifyClass: function (classifies, classIndex, newClass) {
+        console.log('修改分类')
+        let oldClass = classifies[classIndex]
+        classifies[classIndex] = newClass
+        wx.setStorageSync("classifies", classifies)
+        if (oldClass === this.data.currentClass) {
+            this.setData({
+                currentClass: newClass
+            })
+        }
+        let arr = wx.getStorageSync("txt")
+        arr.forEach(function (item) {
+            if (item.classifies === oldClass) {
+                item.classifies = newClass
+            }
+        })
+        wx.setStorageSync("txt", arr)
+        this.classSave()
+    },
+    deleteClass: function (classifies, classIndex) {
+        console.log('删除分类')
+        let oldClass = classifies[classIndex]
+        wx.setStorageSync("classifies", classifies.slice(classIndex, classIndex + 1))
+        if (oldClass === this.data.currentClass) {
+            this.setData({
+                currentClass: '未分类'
+            })
+        }
+        let arr = wx.getStorageSync("txt")
+        arr.forEach(function (item) {
+            if (item.classifies === oldClass) {
+                item.classifies = '未分类'
+            }
+        })
+        wx.setStorageSync("txt", arr)
+        this.classSave()
+    },
+    classifiesInit: function () {
+        let classifies = wx.getStorageSync('classifies')
+        console.log(classifies)
+        if (classifies) {
+            classifies.unshift('未分类')
+            classifies.push('自定义')
+            this.setData({
+                classifies: classifies
+            })
+        } else {
+            classifies = this.data.classifies
+            classifies.pop()
+            classifies.shift()
+            wx.setStorageSync("classifies", classifies)
+            console.log(wx.getStorageSync("classifies"))
+        }
     }
 })
