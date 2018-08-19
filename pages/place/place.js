@@ -81,7 +81,7 @@ Page({
     console.log(e.detail.value);
     util.demo.getSuggestion({
         keyword: e.detail.value,
-        region: "南昌",
+        region: "上海",
         policy: 1,
         success: function(res) {
             console.log(res);

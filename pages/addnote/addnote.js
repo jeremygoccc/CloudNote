@@ -1,4 +1,7 @@
 var util = require("../../utils/util.js");
+const UPLOAD_SHARE_URL = 'https://login.jeremygo.cn/upload'
+const GET_INFO_URL = 'https://login.jeremygo.cn/getShare'
+const requestPromised = util.wxPromisify(wx.request)
 const recorderManager = wx.getRecorderManager();
 const recordOptions = {
     duration: 60000,
@@ -58,13 +61,35 @@ Page({
     onLoad: function(e) {
         this.classifiesInit();
         id = e.id;
+        console.log('share')
+        console.log(e)
         const _this = this;
         if(id) { // id存在则为修改记事本
+            console.log('edit')
             typeof this.getData == "function" && this.getData(id, this);
             _this.setData({
                 saveFlag: true,
                 unloadFlag: true
             });
+        } else if (e.upload) { // upload存在为笔记分享
+            console.log('笔记分享')
+            requestPromised({
+                url: GET_INFO_URL,
+                data: {
+                    id: e.upload,
+                    openid: e.openid
+                }
+            }).then(function (res) {
+                console.log('笔记分享成功')
+                console.log(res.data)
+                _this.setData({
+                    item: res.data
+                })
+                _this.initShowStyle()
+            }).catch(function (res) {
+                console.log('笔记分享失败')
+                console.log(res)
+            })
         } else { // id不存在则为新增记事本
             var item = this.data.item;
             item.id = Date.now();
@@ -163,20 +188,24 @@ Page({
         });
         console.log("getdata: ");
         console.log(this.data.item.place);
-        if (_this.data.item.duration) {
-            _this.setData({
+        _this.initShowStyle()
+    },
+    initShowStyle: function () {
+        console.log(this.data)
+        if (this.data.item.duration) {
+            this.setData({
                 voiceFlag: true
             });
         }
-        if (_this.data.item.alarmTime) {
-            _this.setData({
+        if (this.data.item.alarmTime) {
+            this.setData({
                 showTime: true
             });
         }
-        if (_this.data.item.classifies && _this.data.item.classifies !== '未分类') {
-            _this.setData({
+        if (this.data.item.classifies && this.data.item.classifies !== '未分类') {
+            this.setData({
                 showClass: true,
-                currentClass: _this.data.item.classifies
+                currentClass: this.data.item.classifies
             })
         }
     },
@@ -294,19 +323,53 @@ Page({
         console.log("voiceEnd");
         innerAudioContext.stop();
     },
-    onShareAppMessgae: function(res) {
+    onShareAppMessage: function(res) {
+        console.log('Share to others')
+        if (!this.data.saveFlag) {
+            util.showBusy("请先保存当前笔记");
+            return;
+        }
         if (res.from === 'button') {
             console.log(res.target);
         }
+        // 上传至数据库
+        let id = this.data.item.id
+        let u_openid = wx.getStorageSync('openid')
+        let txt = wx.getStorageSync('txt')
+        let data = []
+        txt.forEach(function (item) {
+            if (item.id == id) {
+                data.push(item)
+            }
+        })
+        console.log(data)
+        wx.request({
+            url: UPLOAD_SHARE_URL,
+            data: {
+                txt: data,
+                u_openid: u_openid
+            },
+            success: function (res) {
+                console.log(res.data)
+                if (res.data.statusCode === 200) {
+                    util.showSuccess("上传成功")
+                } else {
+                    util.showBusy("网络繁忙，请重试")
+                }
+            },
+            fail: function (res) {
+                console.log(res)
+            }
+        })
         return {
-            title: '标题',
-            path: '',
+            title: '笔记分享',
+            path: '/pages/addnote/addnote?upload='+id+'&openid='+u_openid,
             imageUrl: '',
             success: function(res) {
-                console.log('分享成功')
+                util.showSuccess('分享成功')
             },
             fail: function(res) {
-                console.log('分享失败，请重试')
+                util.showBusy('分享失败，请重试')
             }
         }
     },
@@ -332,6 +395,7 @@ Page({
         })
         wx.setStorageSync("txt", arr)
         this.setData({
+            currentClass: '未分类',
             showClass: false
         })
     },

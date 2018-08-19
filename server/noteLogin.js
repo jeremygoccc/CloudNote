@@ -122,6 +122,23 @@ app.get('/getInfo', function(req, res, next) {
     });
 });
 
+app.get('/getShare', function (req, res, next) {
+    var u_openid = req.query.openid
+    var id = req.query.id
+    var getShareSql = "SELECT * FROM n_note_info WHERE u_openid=? and id=?"
+    var getShareParams = [u_openid, id]
+    var resOb = res
+    mysql.query(getShareSql, getShareParams, function (err, res) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message)
+            return
+        }
+        resOb.json({
+            data: res
+        })
+    })
+})
+
 app.listen(port, () => {
     console.log("The server is running on port : " + port);
 });
